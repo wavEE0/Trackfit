@@ -1,0 +1,301 @@
+{% extends "base_landing.html" %}
+{% load static %}
+{% block head_title %}
+<title>Home Trackfit</title>
+{% endblock head_title %}
+{% block style %}
+<style>
+    /* Intro banner */
+    .banner {
+        min-height: 800px;
+        width: 100%;
+        overflow: hidden;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: right center;
+        background-size: cover;
+        background-image: url("{% static 'landing/background_home.jpg' %}");
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+        padding: 20px;
+    }
+    .banner .textbox {
+        width: 400px;
+        left: 20%;
+    }
+    .banner h2 {
+        font-family: Haettenschweiler, "Arial Narrow", sans-serif;
+        color: white;
+        font-size: 5vw;
+        margin: 0 0 20px 20%;
+    }
+    .banner .h2 span {
+        white-space: nowrap;
+    }
+    .banner .btn {
+        font-size: 1.5vw;
+        padding: 10px 20px;
+        margin-left: 20%;
+        padding: 5px 10px;
+    }
+
+    /* Boxes */
+    .box-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 3%;
+        margin-top: -50px;
+        margin-bottom: 80px;
+    }
+    .box {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 2%;
+        flex: 0 0 15%;
+        padding: 10px;
+        margin-bottom: 20px;
+        justify-content: center;
+        background: #9a91fbfa;
+        border: 4px solid #bcb6ff;
+        border-radius: 5px;
+        box-shadow: 
+            0 4px 8px rgba(227, 205, 255, 0.5),
+            inset 0 0 10px rgba(230, 219, 255, 0.788);
+        transition: box-shadow 0.3s ease-in-out;
+    }
+    .box:hover {
+        background: #786fddfa;
+        box-shadow: 
+            0 8px 16px rgba(0, 0, 0, 0.5),
+            inset 0 0 15px rgba(255, 255, 255, 0.7);
+    }
+    .box .icon {
+        width: 120px;
+        margin-left: 20px;
+        font-size: 5rem;
+        padding: 10px;
+        color: #050036;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .box p {
+        margin: 0;
+        padding: 20px 10px 10px 10px;
+        font-size: 1.3rem;
+        text-align: center;
+        color: #050036;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pg-container{
+        width:100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10%;
+    }
+    .paragraph {
+        width: 60%;
+        min-width: 700px;
+        padding: 20px;
+        margin-bottom: 50px;
+        background: #fffffffa;
+        border: 4px solid #d7c1ff;
+        border-radius: 5px;
+        box-shadow: 
+            0 4px 8px rgba(227, 205, 255, 0.5),
+            inset 0 0 10px rgba(230, 219, 255, 0.788);
+        transition: box-shadow 0.3s ease-in-out;
+        display: flex;
+    }
+    .paragraph img {
+        width: 60%;
+        min-width: 200px;
+        height: auto;
+        margin-right: 20px;
+    }
+    .paragraph h2 {
+        font-style: italic;
+        background-color: #ffffff69;
+        margin-top: 5px;
+        margin-left: -70px;
+    }
+    .paragraph h5 {
+        font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        font-size: 1rem;
+        line-height: 1.6rem;
+        word-spacing: 0.3rem;
+    }
+
+    /* Adjustments for medium screens */
+    @media only screen and (max-width: 1024px) {
+        .box-container {
+            width: 100%;
+        }
+        .box {
+            flex: 0 0 48%; /* 50% for 2x2 */
+        }
+            
+        .paragraph {
+            width: 90%;
+        }
+    }
+
+    /* Adjustments for mobile screens */
+    @media only screen and (max-width: 768px) {
+        .banner {
+            min-height: calc(100vh - 60px);
+        }
+        .banner .textbox {
+            width: 40%;
+            left: 0%;
+            border: 1px solid blue;
+        }
+        .banner h2 {
+            font-size: 12vw;
+            margin-left: 10%;
+        }
+        .banner .btn {
+            font-size: 4vw;
+            margin-left: 10%;
+        }
+
+        .box {
+            flex: 0 0 80%; /* 100% for 1x4 */
+        }
+            
+        .paragraph {
+            display: block;
+            width: 80%;
+            min-width: 0;
+            margin-top: 20%;
+        }
+        .paragraph img {
+            width: 30%;
+            min-width: 0px;
+            height: 20%;
+            position: absolute; 
+            left: 0; 
+            right: 0;
+            margin-left: auto; 
+            margin-right: auto; 
+            margin-top: -150px;
+            width: 200px;
+            border: 4px solid #a783e9;
+        }
+        .paragraph h2 {
+            margin-top: 10%;
+            margin-left: 0px;
+            background-color: #ffffff;
+        }
+
+    }
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="banner">
+    <div class="tagline d-flex align-items-center row">
+        <h2><span>Eat Smart,</span> <span>Train Well</span></h2>
+        <a href="{% url 'login' %}" class="btn btn-outline-light">Start transformation <i class="fa-solid fa-forward"></i></a>
+    </div>
+</div>
+
+<div class="box-container">
+    <div class="box d-flex justify-content-center">
+        <div class="row icon d-flex justify-content-center">
+            <i class="fa-solid fa-utensils"></i></i>
+        </div>
+        <p>Track Nutrition Intake</p>
+    </div>
+    <div class="box d-flex justify-content-center">
+        <div class="row icon d-flex justify-content-center">
+            <i class="fa-solid fa-wheat-awn-circle-exclamation row"></i>
+        </div>
+        <p>Get Recommendations</p>
+    </div>
+    <div class="box d-flex justify-content-center">
+        <div class="row icon d-flex justify-content-center">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+        </div>
+        <p>Personalize Your Portfolio</p>
+    </div>
+    <div class="box d-flex justify-content-center">
+        <div class="icon d-flex justify-content-center row">
+            <i class="fa-solid fa-chart-pie"></i>
+        </div>
+        <p>Get Analytics</p>
+    </div>
+</div>
+<div class="pg-container d-flex justify-content-center">
+    <div class="paragraph">
+        <img src="{% static 'landing/pg-1.jpg' %}" alt="pg-1">
+        <div class="textbox">
+            <h2>Fuel Your Fitness: Master Your Nutrients</h2>
+            <h5>Embark on a journey of mindful eating with our cutting-edge 
+                <b>Nutritional Intake Tracking</b> feature. Log your daily meals 
+                and uncover the hidden nutritional values of everything you eat. 
+                It's like having a dietitian in your pocket! This powerful tool 
+                doesn't just count calories—it dives deep into your macronutrient 
+                ratios, vitamin intake, and mineral balance to empower you with 
+                knowledge. Make informed food choices, optimize your diet, and 
+                energize your lifestyle. Start nourishing your body smarter, not 
+                harder!
+            </h5>
+        </div>
+    </div>
+    <div class="paragraph">
+        <img src="{% static 'landing/pg-2.jpg' %}" alt="pg-2">
+        <div class="textbox">
+            <h2>Health in Harmony: Tailored Caloric Wisdom</h2>
+            <h5>With <b>Health Recommendations</b>, take the guesswork out of your 
+                diet. This isn't just about counting calories; it's about making 
+                every calorie count. Input your unique profile—age, weight, activity 
+                level, and health objectives—to receive personalized calorie and 
+                nutrient recommendations. Whether you're looking to lose weight, gain 
+                muscle, or maintain a healthy lifestyle, our algorithmic guidance 
+                aligns your food intake with your wellness goals. Transform 
+                aspirations into achievements through tailored advice that adjusts 
+                as you evolve.
+            </h5>
+        </div>
+    </div>
+    <div class="paragraph">
+        <img src="{% static 'landing/pg-3.jpg' %}" alt="pg-3">
+        <div class="textbox">
+            <h2>The Power of Personalization: Craft Your Culinary Identity</h2>
+            <h5><b>Personalize Your Portfolio</b> and elevate your meal planning to an art 
+                form. This is your culinary canvas: Upload your personal information, 
+                handpick your favorite ingredients, and curate custom meals that 
+                delight your taste buds while advancing your health goals. Set 
+                benchmarks for nutrients, track your progress towards wellness 
+                milestones, and see how your custom selections can lead to a 
+                healthier you. With every bite and every tweak to your meals, you're 
+                crafting a more vibrant, more vivacious you.
+            </h5>
+        </div>
+    </div>
+    <div class="paragraph">
+        <img src="{% static 'landing/pg-4.jpg' %}" alt="pg-4">
+        <div class="textbox">
+            <h2>Insights for Improvement: Your Dietary Dashboard</h2>
+            <h5><b>Harness the power of Data</b>, your personal dashboard 
+                for dietary success. We transform your food logs into vibrant charts 
+                and insightful graphs, offering a clear visual representation of your 
+                nutritional journey over time. Discover patterns, pinpoint areas for 
+                enhancement, and celebrate the victories—big and small—on your path 
+                to well-being. Monitoring your progress has never been this intuitive 
+                or inspiring. Elevate your understanding, and watch as knowledge 
+                becomes the catalyst for your transformation.
+            </h5>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

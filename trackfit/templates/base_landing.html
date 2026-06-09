@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+{% block head %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head_title %}
+    {% endblock head_title %}
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background-color: #12213b;
+            font-family: 'Montserrat', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+        }
+        .content {
+            margin-top: 0px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 90px;
+            border-bottom: 2px solid #555;
+            position: fixed;
+            width: 100%;
+            z-index:2;
+            background: #12213b;
+        }
+        .navbar img {
+            height: 60px;
+        }
+        .links-container {
+            position: absolute;
+            right: 0px;
+            text-align: center;
+            width: 130px;
+        }
+        .links-container a {
+            text-decoration: none;
+            color: #3e4e49;
+            font-size: 1.2rem;
+            margin-right: 10px;
+            color:#a4ffe4;
+            padding: 0;
+        }
+        .links-container a:hover {
+            color:#2b9ce7;
+        }
+        .links-container i {
+            font-size: 1.5rem;
+        }
+        .links-container span {
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            cursor: pointer;
+        }
+        footer h6 {
+            text-decoration: underline;
+            color:#a5a5a5;
+        }
+    </style>
+
+{% block style %}
+{% endblock style %}
+
+</head>
+{% endblock head %}
+
+<body>
+    <nav class="navbar d-flex justify-content-center align-items-center">
+        <a class="navbar-brand"><img src="{% static 'logo.png' %}" alt="TRACKFIT"></a>
+        <div class="links-container d-flex align-items-center">
+            <a href="{% url 'login'%}" class="btn d-flex align-items-center justify-content-center row">
+                <i class="fa-solid fa-user-plus"></i>
+                <div class="txt col"><span>Login / Register</span></div>
+            </a>
+        </div>
+    </nav>
+    
+
+    <div class="content">
+    {% block content %}
+    {% endblock content %}
+    </div>
+
+    <footer class="text-center text-lg-start text-muted bg-body-tertiary">
+        <section class="d-flex justify-content-center justify-content-lg-between border-bottom p-4">
+            <div class="me-lg-5 d-none d-lg-block">
+                <span>Get connected with us on social networks:</span>
+            </div>
+            <div>
+                <a class="text-reset me-4">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a class="text-reset me-4">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a class="text-reset me-4">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a class="text-reset me-4">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a class="text-reset me-4">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a class="text-reset me-4">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+        </section>
+        
+        <section class="mt-5">
+            <div class="container text-center text-md-start">
+                <div class="row mt-3">
+                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            <i class="fas fa-gem me-3"></i>TrackFit
+                        </h6>
+                        <p>
+                            Pioneering personalized health with bespoke nutrition tracking and actionable wellness insights in the UK.
+                        </p>
+                    </div>
+                    
+                    <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4 text-decoration-underline">
+                            Upcoming Features
+                        </h6>
+                        <p>
+                            <a class="text-reset">Activity Logs</a>
+                        </p>
+                        <p>
+                            <a class="text-reset">Custom Workouts</a>
+                        </p>
+                        <p>
+                            <a class="text-reset">Nutrition Goals</a>
+                        </p>
+                    </div>
+                    
+                    <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            Useful Links
+                        </h6>
+                        <p>
+                            <a class="text-reset">Account Settings</a>
+                        </p>
+                        <p>
+                            <a class="text-reset">FAQs</a>
+                        </p>
+                        <p>
+                            <a class="text-reset">Support</a>
+                        </p>
+                    </div>
+                    
+                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4">Contact Us</h6>
+                        <p><i class="fas fa-home me-3"></i> London, UK</p>
+                        <p>
+                            <i class="fas fa-envelope me-3"></i>
+                            support@trackfit.co.uk
+                        </p>
+                        <p><i class="fas fa-phone me-3"></i> +44 20 7946 0123</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+            © 2024 TrackFit: Revolutionizing Wellness
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel@7/browser.min.js"></script>
+</body>
+
+</html>

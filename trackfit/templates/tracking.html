@@ -1,0 +1,560 @@
+{% extends "base_account.html" %}
+{% load static %}
+
+{% block head_title %}
+<title>Nutrition Tracking | Trackfit</title>
+{% endblock head_title %}
+
+{% block style %}
+<style>
+</style>
+{% endblock style %}
+ 
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Log Nutrition</h2>
+    {% if today %}
+    <span class="h4">Date: {{ today }}</span>
+    {% endif %}
+    <!-- Daily intake card -->
+    <div class="card purple">
+        <div class="card-header"><h5>Daily Intake</h5>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#logIntakeModal">
+                Add <i class="fa-solid fa-circle-plus"></i>
+            </button>
+        </div>
+        <div class="container my-4">
+            <div class="row">
+                <div class="col-12 col-md-8">
+                    <div class="row">
+                        <!-- Protein Card -->
+                        <div class="col-4 d-flex align-items-stretch">
+                            <div class="card text-white bg-success-gradient">
+                                <div class="card-body mini">
+                                    <h5 class="card-title">Protein</h5>
+                                    <p class="card-text"><span class="h4">{{ today_intake.protein|floatformat:"-1"|default_if_none:"0" }}</span><small> g</small></p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Carbohydrates Card -->
+                        <div class="col-4 d-flex align-items-stretch">
+                            <div class="card text-white bg-warning-gradient">
+                                <div class="card-body mini">
+                                    <h5 class="card-title">Carbohydrates</h5>
+                                    <p class="card-text"><span class="h4">{{ today_intake.carbohydrates|floatformat:"-1"|default_if_none:"0" }}</span><small> g</small></p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Fats Card -->
+                        <div class="col-4 d-flex align-items-stretch">
+                            <div class="card text-white bg-danger-gradient">
+                                <div class="card-body mini">
+                                    <h5 class="card-title">Fats</h5>
+                                    <p class="card-text"><span class="h4">{{ today_intake.fats|floatformat:"-1"|default_if_none:"0" }}</span><small> g</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Calories Card (Larger) -->
+                <div class="col-12 col-md-4 d-flex align-items-stretch">
+                    <div class="card text-white bg-light-gradient">
+                        <div class="card-body mini">
+                            <h5 class="card-title">Calories</h5>
+                            <p class="card-text" style="font-size: 2.5rem; margin-top: -15px"><span class="display-4">{{ today_intake.calories|floatformat:"-1"|default_if_none:"0" }}</span><small class="h6"> Cal</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-outline-dark" type="button" data-toggle="collapse" data-target="#dailyIntakeBreakdown" aria-expanded="false" aria-controls="dailyIntakeBreakdown">
+            See Breakdown <i class="fa-solid fa-caret-down"></i>
+        </button>
+        <!-- Collapsible Table for Daily Intake Meals -->
+        <div class="collapse" id="dailyIntakeBreakdown">
+            <div class="table-responsive bg-transparent">
+                <table class="table table-content bg-transparent">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col" data-sort="name" class="sort">Name <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col">Ingredients</th>
+                            <th scope="col" data-sort="pro" class="sort">Protein (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="car" class="sort">Carbs (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="fat" class="sort">Fats (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="kcal" class="col_sticky">Calories (kcal) <i class="fa-solid fa-sort"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for meal in intake_meals %}
+                        <tr>
+                            <th scope="row" class="remove" data-item-id="{{ meal.id }}" data-item-name="{{ meal.name }}" data-form-action="{% url 'remove_daily_intake' %}">
+                                    <i class="fa-regular fa-trash-can"></i>
+                            </th>
+                            <td class="col_hl l_align">
+                                {{ meal.name }}
+                                <span style="color: gray; margin-left: 5px">
+                                    {% if meal.quantity > 1 %} (x{{ meal.quantity }}){% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="text-align: left;">
+                                    {% for ingredient in meal.ingredients_list %}
+                                        <span style="display: inline-block; text-align: center; margin-right: 10px;">
+                                            <div>{{ ingredient.name }}</div>
+                                            <div><p class="text-secondary">({{ ingredient.quantity|floatformat:"-1" }}g)</p></div>
+                                        </span>
+                                    {% empty %}
+                                        No ingredients found.
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td>{{ meal.protein|floatformat:"-1" }}</td>
+                            <td>{{ meal.carbohydrates|floatformat:"-1" }}</td>
+                            <td>{{ meal.fats|floatformat:"-1" }}</td>
+                            <td class="col_sticky">{{ meal.calories|floatformat:"-1" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10">No custom meals found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="px-3 text-info"><small>* Nutrtitional values shown for single meal.</small></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom meals card -->
+    <div class="card blue">
+        <div class="card-header"><h5>Custom Meals</h5>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addMealModal">
+                Add <i class="fa-solid fa-circle-plus"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-content">
+                    <thead>
+                        <tr>
+                            <th scope="col">-</th>
+                            <th scope="col" data-sort="name" class="sort">Name <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col">Ingredients</th>
+                            <th scope="col" data-sort="pro" class="sort">Protein (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="car" class="sort">Carbs (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="fat" class="sort">Fats (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="kcal" class="col_sticky">Calories (kcal) <i class="fa-solid fa-sort"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for meal in custom_meals %}
+                        <tr>
+                            <th scope="row" class="remove" data-item-id="{{ meal.id }}" data-item-name="{{ meal.name }}" data-form-action="{% url 'remove_custom_meal' %}">
+                                    <i class="fa-regular fa-trash-can"></i>
+                            </th>
+                            <td class="col_hl l_align">{{ meal.name }}</td>
+                            <td>
+                                <div style="text-align: left;">
+                                    {% for ingredient in meal.ingredients_list %}
+                                        <span style="display: inline-block; text-align: center; margin-right: 10px;">
+                                            <div>{{ ingredient.name }}</div>
+                                            <div><p class="text-secondary">({{ ingredient.quantity|floatformat:"-1" }}g)</p></div>
+                                        </span>
+                                    {% empty %}
+                                        No ingredients found.
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td>{{ meal.protein|floatformat:"-1" }}</td>
+                            <td>{{ meal.carbohydrates|floatformat:"-1" }}</td>
+                            <td>{{ meal.fats|floatformat:"-1" }}</td>
+                            <td class="col_sticky">{{ meal.calories|floatformat:"-1" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10">No custom meals found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom foods card -->
+    <div class="card green">
+        <div class="card-header"><h5>Custom Foods</h5>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addFoodModal">
+                Add <i class="fa-solid fa-circle-plus"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-content">
+                    <thead>
+                        <tr>
+                            <th scope="col">-</th>
+                            <th scope="col" data-sort="name" class="sort">Name <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="cat" class="sort">Cat <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="pro" class="sort">Protein (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="car" class="sort">Carbs (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="sug" class="sort">Sugar (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="fat" class="sort">Fats (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="fib" class="sort">Fiber (g) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="sod" class="sort">Sodium (mg) <i class="fa-solid fa-sort"></i></th>
+                            <th scope="col" data-sort="kcal" class="col_sticky">Calories (kcal) <i class="fa-solid fa-sort"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for food in custom_foods %}
+                        <tr>
+                            <th scope="row" class="remove" data-item-id="{{ food.id }}" data-item-name="{{ food.name }}" data-form-action="{% url 'remove_custom_food' %}">
+                                    <i class="fa-regular fa-trash-can"></i>
+                            </th>
+                            <td class="col_hl l_align">{{ food.name }}</td>
+                            <td class="l_align">{{ food.get_category_display }}</td>
+                            <td>{{ food.protein|floatformat:"-1" }}</td>
+                            <td>{{ food.carbohydrates|floatformat:"-1" }}</td>
+                            <td>{{ food.sugar|floatformat:"-1" }}</td>
+                            <td>{{ food.fats|floatformat:"-1" }}</td>
+                            <td>{{ food.fiber|floatformat:"-1" }}</td>
+                            <td>{{ food.sodium|floatformat:"-1" }}</td>
+                            <td class="col_sticky">{{ food.calories|floatformat:"-1" }}</td>
+                            <td style="position: absolute; visibility: hidden">{{food}}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10">No custom foods found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="px-3 text-info"><small>* Nutrtitional data shown for 100g or equivalent.</small></p>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log intake modal -->
+    <div class="modal fade" id="logIntakeModal" tabindex="-1" role="dialog" aria-labelledby="addMealModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addMealModalLabel">Log Intake</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form method="POST" action="{% url 'add_daily_intake' %}">{% csrf_token %}
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-content">
+                            <thead>
+                                <tr>
+                                    <th scope="col"><i class="fa-solid fa-circle-plus"></i></th>
+                                    <th scope="col" data-sort="name" class="sort">Name <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col">Ingredients</th>
+                                    <th scope="col" data-sort="pro" class="sort">Protein (g) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="car" class="sort">Carbs (g) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="fat" class="sort">Fats (g) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="kcal" class="col_sticky">Calories (kcal) <i class="fa-solid fa-sort"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for meal in all_meals %}
+                                <tr>
+                                    <td><input type="checkbox" name="selected_meals" value="{{ meal.id }}"></td>
+                                    <td class="col_hl l_align">{{ meal.name }}{% if meal.user %} (c){% endif %}</td>
+                                    <td>
+                                        <div style="text-align: left;">
+                                            {% for ingredient in meal.ingredients_list %}
+                                            <span style="display: inline-block; text-align: center; margin-right: 10px;">
+                                                <div>{{ ingredient.name }}</div>
+                                                <div><p class="text-secondary">({{ ingredient.quantity|floatformat:"-1" }}g)</p></div>
+                                            </span>
+                                            {% empty %}
+                                            No ingredients found.
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td>{{ meal.protein|floatformat:"-1" }}</td>
+                                    <td>{{ meal.carbohydrates|floatformat:"-1" }}</td>
+                                    <td>{{ meal.fats|floatformat:"-1" }}</td>
+                                    <td class="col_sticky">{{ meal.calories|floatformat:"-1" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7">No meals found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-outline-dark" value="Log Selected Meals">
+                </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add custom meal modal -->
+      <div class="modal fade" id="addMealModal" tabindex="-1" role="dialog" aria-labelledby="addMealModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addMealModalLabel">Create Meal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form method="POST" action="{% url 'add_custom_meal' %}">{% csrf_token %}
+                  <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="mealNameInput" class="col-sm-2 col-form-label">Name:</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="mealNameInput" name="meal_name" placeholder="Enter meal name" required aria-describedby="mealNameHelp">
+                        </div>
+                    </div>
+                      <div class="table-responsive">
+                          <table class="table table-content">
+                            <thead>
+                                <tr>
+                                    <th scope="col"><i class="fa-solid fa-circle-plus"></i></th>
+                                    <th scope="col" data-sort="name" class="sort">Name <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="cat" class="sort">Cat <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="pro" class="sort">Protein (g) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="car" class="sort">Carbs (g) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="sug" class="sort">Sugar (g) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="fat" class="sort">Fats (g) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="fib" class="sort">Fiber (g) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="sod" class="sort">Sodium (mg) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" data-sort="kcal" class="col_hl2">Calories (kcal) <i class="fa-solid fa-sort"></i></th>
+                                    <th scope="col" class="col_sticky">Amount (g)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for food in all_foods %}
+                                <tr>
+                                    <td><input type="checkbox" name="selected_foods" value="{{ food.id }}" class="food-checkbox"></td>
+                                    <td class="col_hl l_align">{{ food.name }}{% if food.user %} (c){% endif %}</td>
+                                    <td class="l_align">{{ food.get_category_display }}</td>
+                                    <td>{{ food.protein|floatformat:"-1" }}</td>
+                                    <td>{{ food.carbohydrates|floatformat:"-1" }}</td>
+                                    <td>{{ food.sugar|floatformat:"-1" }}</td>
+                                    <td>{{ food.fats|floatformat:"-1" }}</td>
+                                    <td>{{ food.fiber|floatformat:"-1" }}</td>
+                                    <td>{{ food.sodium|floatformat:"-1" }}</td>
+                                    <td class="col_hl2">{{ food.calories|floatformat:"-1" }}</td>
+                                    <td class="col_sticky"> <input type="number" name="quantity_{{ food.id }}" min="1" step="1" class="form-control quantity-input" value="" disabled></td>
+                                    <td style="position: absolute; visibility: hidden">{{food}}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="10">No custom foods found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                          </table>
+                          <p class="px-3 text-info"><small>* Nutrtitional data shown for 100g or equivalent.</small></p>
+                      </div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <input type="submit" class="btn btn-outline-dark" value="Create Meal">
+                  </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add custom food modal -->
+        <div class="modal fade" id="addFoodModal" tabindex="-1" role="dialog" aria-labelledby="addFoodModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addMealModalLabel">Add Food</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form method="POST" action="{% url 'add_custom_food' %}">{% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="foodName">Food Name</label>
+                            <input type="text" class="form-control" id="foodName" name="food_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="foodCategory">Category</label>
+                            <select class="form-control" id="foodCategory" name="food_category" required>
+                                <option value="FR">Fruits</option>
+                                <option value="VG">Vegetables</option>
+                                <option value="GR">Grains</option>
+                                <option value="MT">Meats</option>
+                                <option value="DA">Dairy</option>
+                                <option value="FT">Fats and Oils</option>
+                                <option value="SW">Sweets</option>
+                                <option value="BV">Beverages</option>
+                                <option value="OT">Others</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="foodCalories">Calories</label>
+                            <input type="number" step="any" class="form-control" id="foodCalories" name="food_calories" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="foodProtein">Protein (g)</label>
+                            <input type="number" step="any" class="form-control" id="foodProtein" name="food_protein" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="foodCarbohydrates">Carbohydrates (g)</label>
+                            <input type="number" step="any" class="form-control" id="foodCarbohydrates" name="food_carbohydrates" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="foodSugar">Sugar (g)</label>
+                            <input type="number" step="any" class="form-control" id="foodSugar" name="food_sugar">
+                        </div>
+                        <div class="form-group">
+                            <label for="foodFats">Fats (g)</label>
+                            <input type="number" step="any" class="form-control" id="foodFats" name="food_fats" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="foodFiber">Fiber (g)</label>
+                            <input type="number" step="any" class="form-control" id="foodFiber" name="food_fiber">
+                        </div>
+                        <div class="form-group">
+                            <label for="foodSodium">Sodium (mg)</label>
+                            <input type="number" step="any" class="form-control" id="foodSodium" name="food_sodium">
+                        </div>
+                    </div>                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <input type="submit" class="btn btn-outline-dark" value="Add Food">
+                    </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+      <!-- Remove confirmation modal -->
+      <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to remove <span id="itemName"></span>?
+                </div>
+                <div class="modal-footer">
+                    <form id="deleteForm" method="POST" action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_id" id="itemId" value="">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
+                        <button type="submit" class="btn btn-danger">Confirm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     
+
+</div>
+{% endblock content %}
+
+{% block script %}
+<script>
+    $(document).ready(function() {
+        // Table sorting
+        $('.table-content th[data-sort]').on('click', function() {
+            var table = $(this).closest('table'); // Identify the closest table ancestor
+            var columnIndex = $(this).index();
+            var asc = $(this).hasClass('sorted-asc'); // Check if the column is currently sorted in ascending order
+
+            // Reset all headers to default state
+            $('.table-content th').each(function() {
+                // Remove sorted classes
+                $(this).removeClass('sorted sorted-asc sorted-desc');
+                // Reset all to default sort icon
+                $(this).find('i').attr('class', 'fa-solid fa-sort');
+            });
+
+            // Determine the new icon class based on the current sorting direction
+            var newIconClass = asc ? 'fa-solid fa-arrow-down-short-wide' : 'fa-solid fa-arrow-up-wide-short';
+            
+            // Update the clicked header
+            $(this).addClass('sorted ' + (asc ? 'sorted-desc' : 'sorted-asc'))
+                .find('i').attr('class', newIconClass);
+
+            // Perform the sorting operation
+            sortTable(table, columnIndex, !asc);
+        });
+        // Sorts the table's rows based on the specified column and direction
+        function sortTable(table, column, asc) {
+            // Convert the table rows (except for the header) into an array and sort them
+            var rows = table.find('tr:gt(0)').toArray().sort(comparer(column, asc));
+            // Re-append the sorted rows to the table
+            table.append(rows);
+        }
+        
+        // Generates a function to compare two rows based on the specified column and direction
+        function comparer(index, asc) {
+            return function(a, b) {
+                // Get the cell values for the specified column from each row
+                var valA = getCellValue(a, index), valB = getCellValue(b, index);
+                // Compare the values, adjusting for numeric sorting and direction
+                return ($.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB)) * (asc ? 1 : -1);
+            };
+        }
+        
+        // Retrieves the text value from a specified cell in a row
+        function getCellValue(row, index) { return $(row).children('td').eq(index).text(); }
+
+        // Enables horizontal scrolling using the mouse wheel within '.table-responsive'
+        $('.table-responsive').on('wheel', function(e) {
+            var delta = e.originalEvent.deltaY;
+            // Convert scrolling to horizontal
+            $(this).scrollLeft($(this).scrollLeft() + delta);
+            e.preventDefault();
+        });
+
+        $('.remove').click(function() {
+            var itemId = $(this).data('item-id'); // Holds item ID
+            var itemName = $(this).data('item-name'); // Holds the item name for display
+            var formAction = $(this).data('form-action'); // URL to post the form
+            
+            $('#itemId').val(itemId);
+            $('#itemName').text(itemName);
+            $('#deleteForm').attr('action', formAction);
+
+            $('#confirmationModal').modal('show');
+        });
+
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.food-checkbox').forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                // Target the corresponding quantity input
+                const quantityInput = this.closest('tr').querySelector('.quantity-input');
+                if (this.checked) {
+                    quantityInput.disabled = false; // Enable the input
+                    quantityInput.value = '100';
+                } else {
+                    quantityInput.disabled = true;  // Disable the input
+                }
+            });
+        });
+    });
+    </script>
+    
+{% endblock script %}

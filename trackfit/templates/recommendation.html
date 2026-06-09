@@ -1,0 +1,288 @@
+{% extends "base_account.html" %}
+{% load static %}
+
+{% block head_title %}
+<title>Nutrition Recommendations | Trackfit</title>
+{% endblock head_title %}
+
+{% block style %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    /* Card adjustments for page */
+    .card {
+        width: 60%;
+        margin: 0 20px 20px 0;
+        margin-bottom: 2rem;
+    }
+    .blue {
+        margin-left: 20%;
+    }
+    .green {
+        margin-left: 40%;
+    }
+    .card-placeholder{
+        float: right;
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        font-size: 1.8rem;
+        padding: 5px 10px;
+        border: 5px white;
+        border-style: dashed solid;
+        margin-bottom: 2rem;
+    }
+
+    /* Responsive changes */
+    @media only screen and (max-width: 1024px) {
+        .card {
+            width: 100%;
+        }
+        .blue {
+            margin-left:0%;
+        }
+        .green {
+            margin-left: 0%;
+        }
+    }
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-3">Nutrition Guide</h2>
+
+    <div class="card purple">
+        <div class="card-header"><h5>Profile</h5>
+            {% if user_profile_filled %}
+            <form method="post">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit" name="action" value="reset_user_profile">
+                    Reset <i class="fa-solid fa-arrow-rotate-right"></i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if not user_profile_filled %}
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                <table class="form-table">
+                    <tr>
+                        <th>Age:</th>
+                        <td><input type="number" name="age" min="0"></td>
+                    </tr>
+                    <tr>
+                        <th>Gender:</th>
+                        <td>
+                            <select name="gender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Height (cm):</th>
+                        <td><input type="number" id="height" name="height" step="0.01" required></td>
+                    </tr>
+                    <tr>
+                        <th>Weight (kg):</th>
+                        <td><input type="number" id="weight" name="weight" step="0.01" required></td>
+                    </tr>
+                    <tr>
+                        <th>Activity Level:</th>
+                        <td>
+                            <select id="activity_level" name="activity_level" required>
+                                <option value="sedentary">Sedentary</option>
+                                <option value="light">Light</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="active">Active</option>
+                                <option value="athlete">Athlete</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                <button class="btn btn-primary form-btn btn-type1" type="submit" name="action" value="save_user_profile">
+                    Save Profile
+                </button>
+            </form>
+            {% else %}
+            <!-- Display existing User Profile details -->
+            <table class="form-table">
+                <tr>
+                    <th>Age:</th>
+                    <td>{{ user_profile.age|floatformat:"-1"  }}</td>
+                </tr>
+                <tr>
+                    <th>Gender:</th>
+                    <td>{{ user_profile.gender }}</td>
+                </tr>
+                <tr>
+                    <th>Height:</th>
+                    <td>{{ user_profile.height|floatformat:"-1"  }} cm</td>
+                </tr>
+                <tr>
+                    <th>Weight:</th>
+                    <td>{{ user_profile.weight|floatformat:"-1"  }} kg</td>
+                </tr>
+                <tr>
+                    <th>Activity Level:</th>
+                    <td>{{ user_profile.activity_level }}</td>
+                </tr>
+                <!-- Additional Calculations -->
+                <tr class="hl">
+                    <th>BMR*:</th>
+                    <td>{{ bmr|floatformat:"-1"  }}</td>
+                </tr>
+                <tr class="hl">
+                    <th>Maintenance Calories:</th>
+                    <td>{{ maintenance_calories|floatformat:"-1"  }}</td>
+                </tr>
+            </table>
+            <p class="px-3 text-info"><small>* Basal Metabolic Rate using Harris-Benedict formula.</small></p>
+            {% endif %}
+        </div>
+    </div>
+        
+    <!-- Boady Goals card -->
+    {% if user_profile_filled %}
+    <div class="card blue">
+        <div class="card-header"><h5>Body Goals</h5>
+            {% if user_profile_filled %}
+            <form method="post">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit" name="action" value="reset_body_goal">
+                    Reset <i class="fa-solid fa-arrow-rotate-right"></i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if not body_goal_filled %}
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                <table class="form-table">
+                    <tr>
+                        <th>Goal Category:</th>
+                        <td>
+                            <select id="category" name="category" class="form-control" required>
+                                <option value="">--Select a Category--</option>
+                                <option value="WL">Weight Loss</option>
+                                <option value="MB">Muscle Building</option>
+                                <option value="FL">Fat Loss</option>
+                                <option value="EI">Endurance Improvement</option>
+                                <option value="FB">Flexibility and Balance</option>
+                                <option value="SB">Strength Building</option>
+                                <option value="CU">Custom</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr id="levelRow">
+                        <th>Goal Level:</th>
+                        <td>
+                            <select id="level" name="level" class="form-control">
+                                <option value="Mild">Mild</option>
+                                <option value="Average">Average</option>
+                                <option value="Extreme">Extreme</option>
+                                <option value="Custom">Custom</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr id="targetWeightRow" style="display: none;">
+                        <th>Target Weight (kg):</th>
+                        <td><input type="number" id="target_weight" name="target_weight" class="form-control" min="0" step="0.01"></td>
+                    </tr>
+                    <tr id="goalDateRow" style="display: none;">
+                        <th>Goal Date:</th>
+                        <td><input type="date" id="goal_date" name="goal_date" class="form-control"></td>
+                    </tr>
+                </table>
+                
+                <button class="btn btn-primary form-btn btn-type2" type="submit" name="action" value="save_body_goal">
+                    Calculate Recommended Calories
+                </button>
+           </form>
+           {% else %}
+           <!-- Display existing bodygoal details -->
+           <table class="form-table">
+               <tr>
+                   <th>Category:</th>
+                   <td>{{ body_goal.get_category_display }}</td>
+               </tr>
+               <!-- Only show relevant properties -->
+               {% if body_goal.level %}
+               <tr>
+                   <th>Level:</th>
+                   <td>{{ body_goal.level }}</td>
+               </tr>
+               {% endif %}
+               {% if body_goal.target_weight %}
+               <tr>
+                   <th>Target Weight:</th>
+                   <td>{{ body_goal.target_weight|floatformat:"-1" }}</td>
+               </tr>
+               {% endif %}
+               {% if body_goal.goal_date %}
+               <tr>
+                   <th>Goal Date:</th>
+                   <td>{{ body_goal.goal_date }}</td>
+               </tr>
+               {% endif %}
+           </table>
+           {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <!-- BodyGoal card placeholder -->
+    <h1 class="card-placeholder" style="width: 80%; margin-left: 20%;">
+        2. Tell Us Your Body Goals
+    </h1>
+    {% endif %}
+
+    <!-- Displaying Recommedation -->
+    {% if body_goal_filled %}
+    <div class="card green">
+        <div class="card-header">
+            <h5>Recommendation</h5>
+        </div>
+        <div class="card-body">
+            <p style="text-align: center; font-size: 2rem">{{ recommended_calories }} <small>kcal</small></p>
+        </div>
+    </div>
+    {% else %}
+    <!-- Recommendation card placeholder -->
+    <h1 class="card-placeholder" style="width: 60%; margin-left: 40%;">
+        3. Get Recommended
+    </h1>
+    {% endif %}
+
+</div>    
+{% endblock content %}
+
+
+{% block script %}
+<script>
+    $(document).ready(function() {
+        /* Show only relevant property inputs based on BodyGoal.Category */
+        $('#category').change(function() {
+            var selectedCategory = $(this).val();
+            if (selectedCategory === 'CU') {
+                $('#levelRow').hide();
+                $('#targetWeightRow').show();
+                $('#goalDateRow').show();
+            } else {
+                $('#levelRow').show();
+                $('#targetWeightRow').hide();
+                $('#goalDateRow').hide();
+            }
+        });
+
+        /* Minimum goal date to be in the future (atleast 1 week) */
+        var today = new Date();
+        var nextWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7); // Adds 7 days to the current date
+        // Format date to 'yyyy-MM-dd'
+        var minDate = nextWeek.toISOString().split('T')[0];
+        // Set the min attribute for the goalDate input
+        $('#goalDate').attr('min', minDate);
+    });
+</script>
+    
+{% endblock script %}
