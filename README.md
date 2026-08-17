@@ -38,6 +38,8 @@ TrackFit addresses the fragmented state of modern health apps — where users ar
 
 The application was built as a solo final-year university project, applying Agile methodology, Test-Driven Development (TDD), N-tier architecture, and the DRY principle throughout the development lifecycle.
 
+![TrackFit Dashboard](assets/screenshot.png)
+
 ---
 
 ## Key Features
