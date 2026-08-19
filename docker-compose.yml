@@ -1,0 +1,44 @@
+# local dev setup - runs the app and postgres together
+# usage: docker-compose up
+# first time: docker-compose up && docker-compose exec web python manage.py migrate
+
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_DB: trackfit_db
+      POSTGRES_USER: trackfit_user
+      POSTGRES_PASSWORD: dev_password_change_in_prod
+    volumes:
+      # persist data between restarts
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      # expose locally so you can connect with psql or pgadmin
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trackfit_user -d trackfit_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      # mount source code so changes reload without rebuilding
+      - ./trackfit:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
