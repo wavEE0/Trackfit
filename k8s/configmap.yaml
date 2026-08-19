@@ -1,0 +1,21 @@
+# non-sensitive config - stuff thats ok to put in git
+# secrets (db password, secret key, auth0 creds) go in secret.yaml - NOT in git
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trackfit-config
+  namespace: trackfit
+data:
+  # django settings
+  DEBUG: "False"
+  DJANGO_SETTINGS_MODULE: "trackfit.settings"
+  ALLOWED_HOSTS: "trackfit.example.com,www.trackfit.example.com"
+
+  # database connection (password is in the secret)
+  DB_HOST: "trackfit-postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "trackfit_db"
+  DB_USER: "trackfit_user"
+
+  # gunicorn
+  GUNICORN_WORKERS: "3"
