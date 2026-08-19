@@ -1,0 +1,7 @@
+# everything lives in its own namespace so it doesnt clash with other apps
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trackfit
+  labels:
+    app: trackfit
