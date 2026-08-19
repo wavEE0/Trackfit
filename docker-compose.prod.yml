@@ -1,0 +1,39 @@
+# production docker-compose - for running on a VPS before we move to k8s
+# usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+version: '3.8'
+
+services:
+  db:
+    # dont expose postgres port publicly in prod
+    ports: []
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+  web:
+    # use the built image from ECR rather than building locally
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG:-latest}
+    # override command to use gunicorn instead of dev server
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 4
+             --timeout 30 --access-logfile - trackfit.wsgi:application"
+    environment:
+      DEBUG: "False"
+      DB_HOST: db
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+    # no volume mount in prod - code is baked into the image
+    volumes: []
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - web
+    restart: unless-stopped
