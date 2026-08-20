@@ -1,0 +1,29 @@
+# ingress routes external traffic to the service
+# requires nginx-ingress-controller to be installed on the cluster
+# cert-manager handles TLS automatically if configured
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: trackfit-ingress
+  namespace: trackfit
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # uncomment these once cert-manager is set up
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+    - host: trackfit.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: trackfit-service
+                port:
+                  number: 80
+  # tls:
+  #   - hosts:
+  #       - trackfit.example.com
+  #     secretName: trackfit-tls
