@@ -1,0 +1,31 @@
+# first version - just gets the app running, will add health checks and resource limits next
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trackfit-web
+  namespace: trackfit
+  labels:
+    app: trackfit
+    component: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trackfit
+      component: web
+  template:
+    metadata:
+      labels:
+        app: trackfit
+        component: web
+    spec:
+      containers:
+        - name: trackfit
+          image: PLACEHOLDER_ECR_IMAGE:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: trackfit-config
+            - secretRef:
+                name: trackfit-secret
