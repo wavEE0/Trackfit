@@ -1,4 +1,6 @@
-# first version - just gets the app running, will add health checks and resource limits next
+# updated with resource limits and health checks
+# resource limits stop one pod eating all the node memory
+# health checks let k8s know when a pod is actually ready and when to restart it
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,11 +10,17 @@ metadata:
     app: trackfit
     component: web
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: trackfit
       component: web
+  # rolling update - keeps the app running while deploying new version
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -24,8 +32,36 @@ spec:
           image: PLACEHOLDER_ECR_IMAGE:latest
           ports:
             - containerPort: 8000
+
           envFrom:
             - configMapRef:
                 name: trackfit-config
             - secretRef:
                 name: trackfit-secret
+
+          # resource limits - these are guesses, should be tuned with real load testing
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+          # readiness probe - k8s waits for this before sending traffic
+          readinessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # liveness probe - k8s restarts the pod if this keeps failing
+          livenessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
