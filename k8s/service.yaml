@@ -1,0 +1,18 @@
+# ClusterIP service - only reachable inside the cluster
+# external traffic comes through the ingress below
+apiVersion: v1
+kind: Service
+metadata:
+  name: trackfit-service
+  namespace: trackfit
+  labels:
+    app: trackfit
+spec:
+  selector:
+    app: trackfit
+    component: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
